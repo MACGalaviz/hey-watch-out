@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline';" />
+    <title>Settings — Hey Watch Out</title>
+    <link rel="stylesheet" href="settings.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Hey Watch Out</h1>
+      <p class="muted">Take a break. Your eyes will thank you.</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>Schedule</h2>
+        <div class="row">
+          <label for="intervalMinutes">Reminder interval (minutes)</label>
+          <input id="intervalMinutes" type="number" min="1" max="240" />
+        </div>
+        <div class="row">
+          <label for="breakDurationSeconds">Break duration (seconds)</label>
+          <input id="breakDurationSeconds" type="number" min="5" max="900" />
+        </div>
+        <div class="row buttons">
+          <button id="breakNow" class="primary">Take a break now</button>
+          <button id="togglePause">Pause</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Fade</h2>
+        <div class="row">
+          <label for="fadeInSeconds">Fade in (seconds)</label>
+          <input id="fadeInSeconds" type="number" min="0" max="10" step="0.1" />
+        </div>
+        <div class="row">
+          <label for="fadeOutSeconds">Fade out (seconds)</label>
+          <input id="fadeOutSeconds" type="number" min="0" max="10" step="0.1" />
+        </div>
+      </section>
+
+      <section>
+        <h2>Background</h2>
+        <div class="row">
+          <label for="backgroundType">Type</label>
+          <select id="backgroundType">
+            <option value="default">Solid color</option>
+            <option value="image">Image / GIF</option>
+            <option value="video">Video</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="backgroundColor">Color</label>
+          <input id="backgroundColor" type="color" />
+        </div>
+        <div class="row">
+          <label for="leavesEnabled">Falling leaves overlay</label>
+          <input id="leavesEnabled" type="checkbox" />
+        </div>
+        <div class="row file-row">
+          <label>File</label>
+          <div class="file-input">
+            <input id="backgroundPath" type="text" readonly placeholder="No file selected" />
+            <button id="pickBg">Choose…</button>
+            <button id="clearBg" class="ghost">Clear</button>
+          </div>
+        </div>
+        <div class="row">
+          <label for="backgroundFit">Fit</label>
+          <select id="backgroundFit">
+            <option value="cover">Cover</option>
+            <option value="contain">Contain</option>
+            <option value="100% 100%">Stretch</option>
+          </select>
+        </div>
+      </section>
+
+      <section>
+        <h2>Sound</h2>
+        <div class="row">
+          <label for="soundEnabled">Enabled</label>
+          <input id="soundEnabled" type="checkbox" />
+        </div>
+        <div class="row file-row">
+          <label>Sound file (optional)</label>
+          <div class="file-input">
+            <input id="soundPath" type="text" readonly placeholder="Default synthesized chime" />
+            <button id="pickSound">Choose…</button>
+            <button id="clearSound" class="ghost">Clear</button>
+          </div>
+        </div>
+        <div class="row">
+          <label for="soundVolume">Volume</label>
+          <input id="soundVolume" type="range" min="0" max="100" step="1" />
+          <input id="soundVolumeNum" type="number" min="0" max="100" step="1" class="num-small" />
+        </div>
+      </section>
+
+      <section>
+        <h2>Text</h2>
+        <div class="row">
+          <label for="title">Title</label>
+          <input id="title" type="text" />
+        </div>
+        <div class="row">
+          <label for="subtitle">Subtitle</label>
+          <input id="subtitle" type="text" />
+        </div>
+        <div class="row">
+          <label for="textColor">Color</label>
+          <input id="textColor" type="color" />
+        </div>
+      </section>
+
+      <section>
+        <h2>Countdown</h2>
+        <div class="row">
+          <label for="countdownPosition">Position</label>
+          <select id="countdownPosition">
+            <option value="center">Large, centered</option>
+            <option value="left">Small, left of progress bar</option>
+            <option value="right">Small, right of progress bar</option>
+            <option value="hidden">Hidden</option>
+          </select>
+        </div>
+      </section>
+
+      <section>
+        <h2>Skip</h2>
+        <div class="row">
+          <label for="skipEnabled">Allow skipping a break</label>
+          <input id="skipEnabled" type="checkbox" />
+        </div>
+        <div class="row">
+          <label for="skipAfterSeconds">Skip button appears after (seconds)</label>
+          <input id="skipAfterSeconds" type="number" min="0" max="120" />
+        </div>
+      </section>
+
+      <section>
+        <h2>Mini bar</h2>
+        <div class="row">
+          <label for="miniBarEnabled">Show floating countdown bar</label>
+          <input id="miniBarEnabled" type="checkbox" />
+        </div>
+      </section>
+
+      <section>
+        <h2>Startup</h2>
+        <div class="row">
+          <label for="autostart">Launch at login</label>
+          <input id="autostart" type="checkbox" />
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span id="status" class="muted small"></span>
+    </footer>
+
+    <script src="settings.js"></script>
+  </body>
+</html>

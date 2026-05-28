@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7CE7FF" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#4FB8FF" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#1E5C9E" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="orb" cx="38%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="25%" stop-color="#E4F6FF"/>
+      <stop offset="65%" stop-color="#4FB8FF"/>
+      <stop offset="100%" stop-color="#1E78C8"/>
+    </radialGradient>
+
+    <radialGradient id="wing" cx="25%" cy="50%" r="85%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="55%" stop-color="#B8E8FF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#4FB8FF" stop-opacity="0.10"/>
+    </radialGradient>
+
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+
+    <filter id="tinyGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- Outer halo -->
+  <circle cx="512" cy="512" r="500" fill="url(#halo)"/>
+
+  <!-- Wings: 2 back (smaller, lower) + 2 front (bigger, upper) -->
+  <g>
+    <ellipse cx="320" cy="580" rx="170" ry="88" fill="url(#wing)" opacity="0.55" transform="rotate(-22 320 580)"/>
+    <ellipse cx="704" cy="580" rx="170" ry="88" fill="url(#wing)" opacity="0.55" transform="rotate(22 704 580)"/>
+    <ellipse cx="290" cy="430" rx="225" ry="100" fill="url(#wing)" opacity="0.85" transform="rotate(26 290 430)"/>
+    <ellipse cx="734" cy="430" rx="225" ry="100" fill="url(#wing)" opacity="0.85" transform="rotate(-26 734 430)"/>
+  </g>
+
+  <!-- Glow behind orb -->
+  <circle cx="512" cy="512" r="230" fill="#7CE7FF" opacity="0.40" filter="url(#softGlow)"/>
+
+  <!-- Core orb -->
+  <circle cx="512" cy="512" r="150" fill="url(#orb)"/>
+
+  <!-- Subtle rim -->
+  <circle cx="512" cy="512" r="150" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.55"/>
+
+  <!-- Highlights -->
+  <ellipse cx="468" cy="466" rx="44" ry="26" fill="#FFFFFF" opacity="0.75" transform="rotate(-28 468 466)"/>
+  <circle cx="450" cy="448" r="10" fill="#FFFFFF"/>
+
+  <!-- Sparkle particles -->
+  <g fill="#FFFFFF" filter="url(#tinyGlow)">
+    <circle cx="780" cy="280" r="6"/>
+    <circle cx="240" cy="720" r="5"/>
+    <circle cx="820" cy="700" r="4"/>
+    <circle cx="180" cy="320" r="3"/>
+    <circle cx="860" cy="460" r="3"/>
+    <circle cx="160" cy="540" r="3"/>
+  </g>
+</svg>

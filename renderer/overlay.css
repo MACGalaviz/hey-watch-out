@@ -1,0 +1,225 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  user-select: none;
+}
+
+.overlay {
+  background: linear-gradient(135deg, #16352a 0%, #2d5a3d 50%, #16352a 100%);
+  color: #ffffff;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg video,
+.bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 40%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+
+.content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 28px;
+  text-align: center;
+  padding: 40px;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
+}
+
+h1 {
+  font-size: clamp(48px, 7vw, 96px);
+  font-weight: 200;
+  letter-spacing: -2px;
+  line-height: 1.1;
+}
+
+#subtitle {
+  font-size: clamp(18px, 2vw, 30px);
+  opacity: 0.9;
+  font-weight: 300;
+  max-width: 760px;
+}
+
+.countdown {
+  font-size: clamp(72px, 10vw, 144px);
+  font-weight: 100;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.95;
+  line-height: 1;
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(640px, 60%);
+}
+
+.progress-row .progress-wrap {
+  flex: 1;
+  width: auto;
+}
+
+.countdown-inline {
+  font-size: clamp(14px, 1.4vw, 20px);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+  min-width: 4ch;
+  text-align: center;
+}
+
+body.cd-mode-center .countdown-inline { display: none; }
+body.cd-mode-center .cd-center { display: block; }
+
+body.cd-mode-left .cd-center,
+body.cd-mode-left .cd-side-right { display: none; }
+body.cd-mode-left .cd-side-left { display: inline-block; }
+
+body.cd-mode-right .cd-center,
+body.cd-mode-right .cd-side-left { display: none; }
+body.cd-mode-right .cd-side-right { display: inline-block; }
+
+body.cd-mode-hidden .cd-center,
+body.cd-mode-hidden .countdown-inline { display: none; }
+
+.progress-wrap {
+  width: min(640px, 60%);
+  height: 4px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  width: 0%;
+  transition: width 1s linear;
+  border-radius: 2px;
+}
+
+@media (orientation: portrait) {
+  .content {
+    gap: 22px;
+    padding: 24px;
+  }
+  h1 {
+    font-size: clamp(36px, 6vh, 80px);
+  }
+  #subtitle {
+    font-size: clamp(15px, 2.2vh, 26px);
+    max-width: 90%;
+  }
+  .countdown {
+    font-size: clamp(56px, 9vh, 130px);
+  }
+  .progress-wrap {
+    width: min(640px, 80%);
+  }
+}
+
+.skip {
+  cursor: pointer;
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.18s ease, transform 0.18s ease;
+  margin-top: 8px;
+}
+
+.skip:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.skip:active {
+  transform: translateY(0);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Default falling leaves animation (no asset required). */
+.leaves {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.leaf {
+  position: absolute;
+  top: -10vh;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+}
+
+@keyframes fall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(40px, 50vh, 0) rotate(360deg);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-30px, 115vh, 0) rotate(720deg);
+    opacity: 0;
+  }
+}

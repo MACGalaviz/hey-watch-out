@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob: 'unsafe-inline';" />
+    <title>Hey Watch Out</title>
+    <link rel="stylesheet" href="overlay.css" />
+  </head>
+  <body class="overlay">
+    <div id="bg-container" class="bg"></div>
+    <div id="leaves" class="leaves hidden" aria-hidden="true"></div>
+    <div class="vignette"></div>
+    <main class="content">
+      <h1 id="title">Hey, watch out!</h1>
+      <p id="subtitle">Take a break.</p>
+      <div class="progress-row">
+        <span class="countdown-inline cd-side-left">60</span>
+        <div class="progress-wrap" aria-hidden="true">
+          <div id="progress" class="progress"></div>
+        </div>
+        <span class="countdown-inline cd-side-right">60</span>
+      </div>
+      <div class="countdown cd-center">60</div>
+      <button id="skip" class="skip hidden" type="button">Skip (Esc)</button>
+    </main>
+    <audio id="chime" preload="auto"></audio>
+    <script src="overlay.js"></script>
+  </body>
+</html>

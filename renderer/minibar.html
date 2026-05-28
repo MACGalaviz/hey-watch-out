@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline';" />
+    <title>Mini Bar</title>
+    <link rel="stylesheet" href="minibar.css" />
+  </head>
+  <body>
+    <div class="bar" id="bar">
+      <img class="icon" src="../assets/tray@2x.png" alt="" />
+      <div class="content">
+        <span class="label" id="label">--:--</span>
+        <div class="track" aria-hidden="true">
+          <div class="fill" id="fill"></div>
+        </div>
+      </div>
+      <button class="btn" id="open" title="Settings">⚙</button>
+    </div>
+    <script src="minibar.js"></script>
+  </body>
+</html>

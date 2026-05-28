@@ -1,0 +1,60 @@
+{
+  "name": "hey-watch-out",
+  "version": "0.1.0",
+  "description": "Cross-platform break reminder. Personal alternative to Time Out.",
+  "main": "main.js",
+  "author": "Miguel Cabanas",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:all": "electron-builder -mw"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
+    "electron-icon-builder": "^2.0.1",
+    "sharp-cli": "^5.2.0"
+  },
+  "dependencies": {
+    "electron-store": "8.2.0"
+  },
+  "build": {
+    "appId": "com.miguelcabanas.heywatchout",
+    "productName": "Hey Watch Out",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.healthcare-fitness",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "identity": null,
+      "icon": "assets/icon.icns"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
