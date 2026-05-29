@@ -4,44 +4,49 @@ const { execSync } = require('child_process');
 const sharp = require('sharp');
 
 const root = path.join(__dirname, '..');
-const svg = path.join(root, 'assets', 'icon.svg');
-const png = path.join(root, 'assets', 'icon.png');
+const svgWin = path.join(root, 'assets', 'icon.svg');
+const svgMac = path.join(root, 'assets', 'icon-mac.svg');
+const pngWin = path.join(root, 'assets', 'icon.png');
+const pngMac = path.join(root, 'assets', 'icon-mac.png');
 const buildDir = path.join(root, 'build');
+const buildWin = path.join(buildDir, 'win');
+const buildMac = path.join(buildDir, 'mac');
 
-async function main() {
+async function rasterize(svg, png) {
   if (!fs.existsSync(svg)) {
     console.error(`Missing source: ${svg}`);
     process.exit(1);
   }
-
-  await sharp(svg, { density: 384 })
-    .resize(1024, 1024)
-    .png()
-    .toFile(png);
+  await sharp(svg, { density: 384 }).resize(1024, 1024).png().toFile(png);
   console.log(`Wrote ${png}`);
+}
 
+function runBuilder(input, output) {
+  fs.mkdirSync(output, { recursive: true });
   execSync(
-    `npx electron-icon-builder --input="${png}" --output="${buildDir}" --flatten`,
+    `npx electron-icon-builder --input="${input}" --output="${output}" --flatten`,
     { stdio: 'inherit', cwd: root }
   );
+}
 
-  const macSrc = path.join(buildDir, 'icons', 'icon.icns');
-  const winSrc = path.join(buildDir, 'icons', 'icon.ico');
-  const macDst = path.join(root, 'assets', 'icon.icns');
-  const winDst = path.join(root, 'assets', 'icon.ico');
+function copy(src, dst) {
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, dst);
+    console.log(`Wrote ${dst}`);
+  } else {
+    console.warn(`Missing ${src}`);
+  }
+}
 
-  if (fs.existsSync(macSrc)) {
-    fs.copyFileSync(macSrc, macDst);
-    console.log(`Wrote ${macDst}`);
-  } else {
-    console.warn(`Missing ${macSrc}`);
-  }
-  if (fs.existsSync(winSrc)) {
-    fs.copyFileSync(winSrc, winDst);
-    console.log(`Wrote ${winDst}`);
-  } else {
-    console.warn(`Missing ${winSrc}`);
-  }
+async function main() {
+  await rasterize(svgWin, pngWin);
+  await rasterize(svgMac, pngMac);
+
+  runBuilder(pngWin, buildWin);
+  runBuilder(pngMac, buildMac);
+
+  copy(path.join(buildWin, 'icons', 'icon.ico'), path.join(root, 'assets', 'icon.ico'));
+  copy(path.join(buildMac, 'icons', 'icon.icns'), path.join(root, 'assets', 'icon.icns'));
 }
 
 main().catch((err) => {

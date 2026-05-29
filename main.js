@@ -223,6 +223,8 @@ ipcMain.handle('get-state', () => ({
 
 ipcMain.handle('open-settings', () => createSettingsWindow());
 
+ipcMain.handle('get-version', () => app.getVersion());
+
 ipcMain.handle('move-mini-bar-corner', (_e, corner) => {
   moveMiniBarToCorner(corner);
   return store.get('miniBarPosition');

@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('api', {
   openSettings: () => ipcRenderer.invoke('open-settings'),
   overlayReady: () => ipcRenderer.send('overlay-ready'),
   moveMiniBarCorner: (corner) => ipcRenderer.invoke('move-mini-bar-corner', corner),
+  getVersion: () => ipcRenderer.invoke('get-version'),
   onTick: (cb) => {
     const listener = (_e, payload) => cb(payload);
     ipcRenderer.on('tick', listener);

@@ -81,6 +81,9 @@ async function init() {
   settings = await window.api.getSettings();
   applyToForm(settings);
 
+  const version = await window.api.getVersion();
+  document.getElementById('versionBadge').textContent = `v${version}`;
+
   fields.forEach((f) => {
     const el = getEl(f);
     if (!el) return;
