@@ -42,6 +42,14 @@
       "identity": null,
       "icon": "assets/icon.icns"
     },
+    "dmg": {
+      "background": "assets/dmg-background.png",
+      "iconSize": 128,
+      "contents": [
+        { "x": 140, "y": 200, "type": "file" },
+        { "x": 400, "y": 200, "type": "link", "path": "/Applications" }
+      ]
+    },
     "publish": [
       {
         "provider": "github",
