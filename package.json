@@ -1,6 +1,6 @@
 {
   "name": "hey-watch-out",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Cross-platform break reminder. Personal alternative to Time Out.",
   "main": "main.js",
   "author": "Miguel Cabanas",
@@ -36,8 +36,18 @@
     "mac": {
       "category": "public.app-category.healthcare-fitness",
       "target": [
-        { "target": "dmg", "arch": ["universal"] },
-        { "target": "zip", "arch": ["universal"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
+        }
       ],
       "identity": null,
       "icon": "assets/icon.icns"
@@ -46,8 +56,17 @@
       "background": "assets/dmg-background.png",
       "iconSize": 128,
       "contents": [
-        { "x": 140, "y": 200, "type": "file" },
-        { "x": 400, "y": 200, "type": "link", "path": "/Applications" }
+        {
+          "x": 140,
+          "y": 200,
+          "type": "file"
+        },
+        {
+          "x": 400,
+          "y": 200,
+          "type": "link",
+          "path": "/Applications"
+        }
       ]
     },
     "publish": [
