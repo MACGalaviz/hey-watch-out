@@ -10,12 +10,14 @@
     "build": "electron-builder",
     "build:mac": "electron-builder --mac",
     "build:win": "electron-builder --win",
-    "build:all": "electron-builder -mw"
+    "build:all": "electron-builder -mw",
+    "generate:icons": "node scripts/generate-icons.js"
   },
   "devDependencies": {
     "electron": "^28.3.3",
     "electron-builder": "^24.13.3",
     "electron-icon-builder": "^2.0.1",
+    "sharp": "^0.34.2",
     "sharp-cli": "^5.2.0"
   },
   "dependencies": {

@@ -1,6 +1,7 @@
 const label = document.getElementById('label');
 const fill = document.getElementById('fill');
 const openBtn = document.getElementById('open');
+const pauseBtn = document.getElementById('pause');
 
 let intervalMinutes = 20;
 let nextBreakAt = null;
@@ -14,6 +15,9 @@ function fmt(ms) {
 }
 
 function render() {
+  pauseBtn.classList.toggle('is-paused', paused);
+  pauseBtn.title = paused ? 'Resume' : 'Pause';
+  pauseBtn.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
   if (paused) {
     label.textContent = 'Paused';
     fill.style.width = '100%';
@@ -29,7 +33,7 @@ function render() {
   const remaining = nextBreakAt - Date.now();
   const totalMs = intervalMinutes * 60 * 1000;
   const pct = Math.max(0, Math.min(100, (1 - remaining / totalMs) * 100));
-  label.textContent = `Next break in ${fmt(remaining)}`;
+  label.textContent = `Break in ${fmt(remaining)}`;
   fill.style.width = `${pct}%`;
   fill.classList.remove('paused');
 }
@@ -44,6 +48,10 @@ async function refresh() {
 }
 
 openBtn.addEventListener('click', () => window.api.openSettings());
+pauseBtn.addEventListener('click', async () => {
+  paused = await window.api.togglePause();
+  render();
+});
 
 window.api.onTick((payload) => {
   if (payload.nextBreakAt !== undefined) nextBreakAt = payload.nextBreakAt;

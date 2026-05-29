@@ -162,6 +162,23 @@ footer {
   border-top: 1px solid #2a2e35;
 }
 
+.corner-grid {
+  display: grid;
+  grid-template-columns: 36px 36px;
+  grid-template-rows: 36px 36px;
+  gap: 6px;
+  justify-self: start;
+}
+
+.corner-btn {
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .muted {
   color: #8a92a0;
 }

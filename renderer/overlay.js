@@ -28,9 +28,20 @@ function applyBackground(settings) {
 
   document.body.style.background = baseColor;
 
+  let mediaReady = Promise.resolve();
+
   if (settings.backgroundType === 'image' && settings.backgroundPath) {
-    bg.style.backgroundImage = `url("${fileUrl(settings.backgroundPath)}")`;
-    bg.style.backgroundSize = settings.backgroundFit || 'cover';
+    const url = fileUrl(settings.backgroundPath);
+    mediaReady = new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        bg.style.backgroundImage = `url("${url}")`;
+        bg.style.backgroundSize = settings.backgroundFit || 'cover';
+        resolve();
+      };
+      img.onerror = () => resolve();
+      img.src = url;
+    });
   } else if (settings.backgroundType === 'video' && settings.backgroundPath) {
     const video = document.createElement('video');
     video.src = fileUrl(settings.backgroundPath);
@@ -39,6 +50,11 @@ function applyBackground(settings) {
     video.muted = true;
     video.playsInline = true;
     video.style.objectFit = settings.backgroundFit === 'contain' ? 'contain' : 'cover';
+    mediaReady = new Promise((resolve) => {
+      const done = () => resolve();
+      video.addEventListener('loadeddata', done, { once: true });
+      video.addEventListener('error', done, { once: true });
+    });
     bg.appendChild(video);
   }
 
@@ -46,6 +62,8 @@ function applyBackground(settings) {
     leaves.classList.remove('hidden');
     spawnLeaves(leaves);
   }
+
+  return mediaReady;
 }
 
 function playDefaultChime(volume) {
@@ -148,7 +166,11 @@ async function init() {
     : 'center';
   document.body.classList.add(`cd-mode-${pos}`);
 
-  applyBackground(settings);
+  const ready = applyBackground(settings);
+  const timeout = new Promise((r) => setTimeout(r, 3000));
+  await Promise.race([ready, timeout]);
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  window.api.overlayReady();
   playSound(settings);
   setupSkip(settings);
   startCountdown(Math.max(5, settings.breakDurationSeconds));

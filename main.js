@@ -15,7 +15,7 @@ const Store = require('electron-store');
 const store = new Store({
   defaults: {
     intervalMinutes: 20,
-    breakDurationSeconds: 60,
+    breakDurationSeconds: 20,
     fadeInSeconds: 1.5,
     fadeOutSeconds: 0.5,
     backgroundType: 'default',
@@ -31,7 +31,7 @@ const store = new Store({
     backgroundColor: '#16352a',
     countdownPosition: 'center',
     skipEnabled: true,
-    skipAfterSeconds: 5,
+    skipAfterSeconds: 0,
     miniBarEnabled: true,
     miniBarPosition: { x: 40, y: 40 },
     paused: false,
@@ -149,13 +149,8 @@ function startBreak() {
     win.setBounds({ x, y, width, height });
     if (isMac) win.setSimpleFullScreen(true);
     win.loadFile(path.join(__dirname, 'renderer', 'overlay.html'));
-    win.once('ready-to-show', () => {
-      win.setBounds({ x, y, width, height });
-      win.setOpacity(0);
-      win.show();
-      win.focus();
-      fadeWindowOpacity(win, 0, 1, fadeInMs);
-    });
+    win._fadeInMs = fadeInMs;
+    win._bounds = { x, y, width, height };
     return win;
   });
   refreshTrayMenu();
@@ -228,6 +223,21 @@ ipcMain.handle('get-state', () => ({
 
 ipcMain.handle('open-settings', () => createSettingsWindow());
 
+ipcMain.handle('move-mini-bar-corner', (_e, corner) => {
+  moveMiniBarToCorner(corner);
+  return store.get('miniBarPosition');
+});
+
+ipcMain.on('overlay-ready', (e) => {
+  const win = BrowserWindow.fromWebContents(e.sender);
+  if (!win || win.isDestroyed()) return;
+  if (win._bounds) win.setBounds(win._bounds);
+  win.setOpacity(0);
+  win.show();
+  win.focus();
+  fadeWindowOpacity(win, 0, 1, win._fadeInMs || 0);
+});
+
 function applySettingsChange() {
   if (!isBreakActive) scheduleNextBreak();
   const wantMini = store.get('miniBarEnabled');
@@ -244,8 +254,8 @@ function createMiniBar() {
   if (miniBar && !miniBar.isDestroyed()) return;
   const pos = store.get('miniBarPosition');
   miniBar = new BrowserWindow({
-    width: 200,
-    height: 44,
+    width: 170,
+    height: 32,
     x: pos.x,
     y: pos.y,
     frame: false,
@@ -339,6 +349,32 @@ function refreshTrayMenu() {
     },
   ]);
   tray.setContextMenu(menu);
+}
+
+function moveMiniBarToCorner(corner) {
+  if (!miniBar || miniBar.isDestroyed()) {
+    if (store.get('miniBarEnabled')) createMiniBar();
+    if (!miniBar || miniBar.isDestroyed()) return;
+  }
+  const [bx, by] = miniBar.getPosition();
+  const [w, h] = miniBar.getSize();
+  const display = screen.getDisplayMatching({ x: bx, y: by, width: w, height: h });
+  const { x, y, width, height } = display.workArea;
+  const margin = 20;
+  let nx = x + margin;
+  let ny = y + margin;
+  if (corner === 'top-right') {
+    nx = x + width - w - margin;
+    ny = y + margin;
+  } else if (corner === 'bottom-left') {
+    nx = x + margin;
+    ny = y + height - h - margin;
+  } else if (corner === 'bottom-right') {
+    nx = x + width - w - margin;
+    ny = y + height - h - margin;
+  }
+  miniBar.setPosition(nx, ny);
+  store.set('miniBarPosition', { x: nx, y: ny });
 }
 
 function togglePause() {

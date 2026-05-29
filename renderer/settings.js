@@ -39,14 +39,24 @@ function applyToForm(s) {
   getEl('soundVolumeNum').value = s.soundVolume;
 }
 
+function clampNumber(el) {
+  const min = el.min !== '' ? Number(el.min) : -Infinity;
+  const max = el.max !== '' ? Number(el.max) : Infinity;
+  const step = el.step && el.step !== 'any' ? Number(el.step) : null;
+  let v = Number(el.value);
+  if (!Number.isFinite(v)) v = min === -Infinity ? 0 : min;
+  v = Math.min(max, Math.max(min, v));
+  if (step && step > 0) v = Math.round(v / step) * step;
+  return Number(v.toFixed(4));
+}
+
 function gatherFromForm() {
   const out = {};
   fields.forEach((f) => {
     const el = getEl(f);
     if (!el) return;
     if (el.type === 'checkbox') out[f] = el.checked;
-    else if (el.type === 'number') out[f] = Number(el.value);
-    else if (el.type === 'range') out[f] = Number(el.value);
+    else if (el.type === 'number' || el.type === 'range') out[f] = clampNumber(el);
     else out[f] = el.value;
   });
   return out;
@@ -76,6 +86,11 @@ async function init() {
     if (!el) return;
     el.addEventListener('input', scheduleSave);
     el.addEventListener('change', scheduleSave);
+    if (el.type === 'number') {
+      el.addEventListener('blur', () => {
+        el.value = clampNumber(el);
+      });
+    }
   });
 
   const volRange = getEl('soundVolume');
@@ -143,6 +158,12 @@ async function init() {
   });
 
   window.api.onTick(() => refreshPauseLabel());
+
+  document.querySelectorAll('.corner-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      window.api.moveMiniBarCorner(btn.dataset.corner);
+    });
+  });
 }
 
 init();
