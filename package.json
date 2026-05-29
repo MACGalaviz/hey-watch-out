@@ -42,6 +42,13 @@
       "identity": null,
       "icon": "assets/icon.icns"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "MACGalaviz",
+        "repo": "hey-watch-out"
+      }
+    ],
     "win": {
       "target": [
         "nsis",
