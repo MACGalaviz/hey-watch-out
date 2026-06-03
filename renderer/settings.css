@@ -198,6 +198,24 @@ footer {
   justify-content: center;
 }
 
+.display-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.display-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.display-item input {
+  width: auto;
+}
+
 .muted {
   color: #8a92a0;
 }

@@ -36,6 +36,7 @@ const store = new Store({
     miniBarPosition: { x: 40, y: 40 },
     paused: false,
     autostart: false,
+    excludedDisplayIds: [],
   },
 });
 
@@ -105,55 +106,96 @@ function scheduleNextBreak() {
   broadcast('tick', { nextBreakAt, paused: false });
 }
 
+function getTargetDisplays() {
+  // Block every display except the ones the user explicitly excluded. New /
+  // hot-plugged displays are blocked by default (not in the excluded list).
+  const excluded = store.get('excludedDisplayIds') || [];
+  return screen.getAllDisplays().filter((d) => !excluded.includes(d.id));
+}
+
+function createOverlayForDisplay(display, fadeInMs) {
+  const isMac = process.platform === 'darwin';
+  const { x, y, width, height } = display.bounds;
+  const win = new BrowserWindow({
+    x,
+    y,
+    width,
+    height,
+    frame: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    resizable: false,
+    movable: false,
+    minimizable: false,
+    maximizable: false,
+    closable: false,
+    focusable: true,
+    hasShadow: false,
+    fullscreenable: false,
+    backgroundColor: '#000000',
+    show: false,
+    opacity: 0,
+    simpleFullscreen: isMac,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+    },
+  });
+  win.setAlwaysOnTop(true, 'screen-saver');
+  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  win.setBounds({ x, y, width, height });
+  if (isMac) win.setSimpleFullScreen(true);
+  win.loadFile(path.join(__dirname, 'renderer', 'overlay.html'));
+  win._fadeInMs = fadeInMs;
+  win._bounds = { x, y, width, height };
+  win._displayId = display.id;
+  return win;
+}
+
 function startBreak() {
   if (isBreakActive) return;
+  const targets = getTargetDisplays();
+  // No display to block (all excluded / none connected): skip and reschedule,
+  // otherwise the break would have no overlay to end it.
+  if (!targets.length) {
+    scheduleNextBreak();
+    return;
+  }
   isBreakActive = true;
   if (breakTimer) {
     clearTimeout(breakTimer);
     breakTimer = null;
   }
   const fadeInMs = Math.max(0, store.get('fadeInSeconds') * 1000);
-  const isMac = process.platform === 'darwin';
-  const displays = screen.getAllDisplays();
-  overlayWindows = displays.map((display) => {
-    const { x, y, width, height } = display.bounds;
-    const win = new BrowserWindow({
-      x,
-      y,
-      width,
-      height,
-      frame: false,
-      alwaysOnTop: true,
-      skipTaskbar: true,
-      resizable: false,
-      movable: false,
-      minimizable: false,
-      maximizable: false,
-      closable: false,
-      focusable: true,
-      hasShadow: false,
-      fullscreenable: false,
-      backgroundColor: '#000000',
-      show: false,
-      opacity: 0,
-      simpleFullscreen: isMac,
-      webPreferences: {
-        preload: path.join(__dirname, 'preload.js'),
-        contextIsolation: true,
-        nodeIntegration: false,
-        sandbox: false,
-      },
-    });
-    win.setAlwaysOnTop(true, 'screen-saver');
-    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-    win.setBounds({ x, y, width, height });
-    if (isMac) win.setSimpleFullScreen(true);
-    win.loadFile(path.join(__dirname, 'renderer', 'overlay.html'));
-    win._fadeInMs = fadeInMs;
-    win._bounds = { x, y, width, height };
-    return win;
-  });
+  overlayWindows = targets.map((d) => createOverlayForDisplay(d, fadeInMs));
   refreshTrayMenu();
+}
+
+// Keep overlays in sync with hot-plugged displays while a break is active:
+// add overlays for newly-targeted displays, destroy ones whose display is gone.
+function syncOverlaysToDisplays() {
+  if (!isBreakActive) return;
+  const targets = getTargetDisplays();
+  const targetIds = targets.map((d) => d.id);
+
+  overlayWindows = overlayWindows.filter((w) => {
+    if (w && !w.isDestroyed() && !targetIds.includes(w._displayId)) {
+      w.destroy();
+      return false;
+    }
+    return w && !w.isDestroyed();
+  });
+
+  const fadeInMs = Math.max(0, store.get('fadeInSeconds') * 1000);
+  targets.forEach((d) => {
+    const exists = overlayWindows.some((w) => w._displayId === d.id);
+    if (!exists) overlayWindows.push(createOverlayForDisplay(d, fadeInMs));
+  });
+
+  // Nothing left to block: end the break so it doesn't stay stuck active.
+  if (!overlayWindows.length) endBreak();
 }
 
 async function endBreak() {
@@ -225,6 +267,20 @@ ipcMain.handle('open-settings', () => createSettingsWindow());
 
 ipcMain.handle('get-version', () => app.getVersion());
 
+ipcMain.handle('get-displays', () => {
+  const primaryId = screen.getPrimaryDisplay().id;
+  const excluded = store.get('excludedDisplayIds') || [];
+  return screen.getAllDisplays().map((d, i) => ({
+    id: d.id,
+    label: d.label || `Display ${i + 1}`,
+    width: d.bounds.width,
+    height: d.bounds.height,
+    scaleFactor: d.scaleFactor,
+    primary: d.id === primaryId,
+    blocked: !excluded.includes(d.id),
+  }));
+});
+
 ipcMain.handle('move-mini-bar-corner', (_e, corner) => {
   moveMiniBarToCorner(corner);
   return store.get('miniBarPosition');
@@ -249,6 +305,7 @@ function applySettingsChange() {
     miniBar = null;
   }
   applyAutoStart();
+  syncOverlaysToDisplays();
   refreshTrayMenu();
 }
 
@@ -403,6 +460,14 @@ app.whenReady().then(() => {
   createTray();
   if (store.get('miniBarEnabled')) createMiniBar();
   if (!store.get('paused')) scheduleNextBreak();
+
+  const onDisplaysChanged = () => {
+    syncOverlaysToDisplays();
+    broadcast('displays-changed');
+  };
+  screen.on('display-added', onDisplaysChanged);
+  screen.on('display-removed', onDisplaysChanged);
+  screen.on('display-metrics-changed', onDisplaysChanged);
 });
 
 app.on('before-quit', () => {

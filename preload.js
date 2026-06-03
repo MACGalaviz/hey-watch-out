@@ -13,9 +13,15 @@ contextBridge.exposeInMainWorld('api', {
   overlayReady: () => ipcRenderer.send('overlay-ready'),
   moveMiniBarCorner: (corner) => ipcRenderer.invoke('move-mini-bar-corner', corner),
   getVersion: () => ipcRenderer.invoke('get-version'),
+  getDisplays: () => ipcRenderer.invoke('get-displays'),
   onTick: (cb) => {
     const listener = (_e, payload) => cb(payload);
     ipcRenderer.on('tick', listener);
     return () => ipcRenderer.removeListener('tick', listener);
+  },
+  onDisplaysChanged: (cb) => {
+    const listener = () => cb();
+    ipcRenderer.on('displays-changed', listener);
+    return () => ipcRenderer.removeListener('displays-changed', listener);
   },
 });

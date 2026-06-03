@@ -167,6 +167,42 @@ async function init() {
       window.api.moveMiniBarCorner(btn.dataset.corner);
     });
   });
+
+  await renderDisplays();
+  window.api.onDisplaysChanged(() => renderDisplays());
+}
+
+async function renderDisplays() {
+  const list = getEl('displayList');
+  if (!list) return;
+  const displays = await window.api.getDisplays();
+  list.innerHTML = '';
+  displays.forEach((d) => {
+    const row = document.createElement('label');
+    row.className = 'display-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = d.blocked;
+    cb.dataset.id = d.id;
+    const text = document.createElement('span');
+    const tag = d.primary ? ' (primary)' : '';
+    text.textContent = `${d.label} — ${d.width}×${d.height}${tag}`;
+    cb.addEventListener('change', saveDisplays);
+    row.appendChild(cb);
+    row.appendChild(text);
+    list.appendChild(row);
+  });
+}
+
+async function saveDisplays() {
+  const excluded = [];
+  getEl('displayList')
+    .querySelectorAll('input[type="checkbox"]')
+    .forEach((cb) => {
+      if (!cb.checked) excluded.push(Number(cb.dataset.id));
+    });
+  settings = await window.api.setSettings({ excludedDisplayIds: excluded });
+  flashStatus('Saved');
 }
 
 init();
