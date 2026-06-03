@@ -32,6 +32,7 @@ So I built it.
 ## Features
 
 - **Multi-monitor lockdown** — covers every display including portrait and flipped portrait, hides taskbar and menu bar
+- **Per-display selection** — choose which screens get blocked; newly connected / hot-plugged displays are blocked by default and synced live mid-break
 - **Configurable schedule** — interval and break duration to taste
 - **Fade in/out** — smooth window opacity transitions, configurable seconds
 - **Background options**:
@@ -49,10 +50,19 @@ So I built it.
   - Hidden
 - **Progress bar** left-to-right showing time elapsed in current break
 - **Skip button** with optional grace-period delay, plus `Esc` shortcut
-- **Floating mini-bar** with countdown to next break — drag from anywhere, gear icon for settings
+- **Floating mini-bar** with countdown to next break — drag from anywhere, snap to any corner, pause/resume and gear buttons
 - **System tray**: take break now, pause/resume, settings, quit
 - **Launch at login** toggle (macOS Launch Services / Windows registry)
 - Settings persisted via `electron-store`
+
+## Download
+
+Grab the latest prebuilt installer from the [Releases](https://github.com/MACGalaviz/hey-watch-out/releases) page — no need to build it yourself:
+
+- **macOS** — `.dmg` (universal: Apple Silicon + Intel)
+- **Windows** — NSIS installer or portable `.exe`
+
+Builds are unsigned (see [Unsigned builds](#unsigned-builds) for first-launch steps). Prefer to build from source? See [below](#quick-start).
 
 ## Quick start
 
@@ -68,12 +78,12 @@ The app lives in your system tray / menu bar. Right-click it → **Settings**.
 ## Build installers
 
 ```bash
-npm run build:mac     # .dmg + .zip
+npm run build:mac     # .dmg + .zip (universal: Apple Silicon + Intel)
 npm run build:win     # NSIS installer + portable .exe
 npm run build:all     # both
 ```
 
-Outputs land in `dist/`.
+Outputs land in `dist/`. Tagged pushes also trigger a GitHub Actions workflow that builds macOS + Windows and publishes them to [Releases](https://github.com/MACGalaviz/hey-watch-out/releases) automatically.
 
 ### Unsigned builds
 
@@ -101,7 +111,8 @@ Open **Settings** from the tray icon or mini-bar gear button. Every option is li
 | Text        | Title, subtitle, color                                                                 |
 | Countdown   | Position: center / left / right / hidden                                               |
 | Skip        | Allow skipping, reveal delay (seconds)                                                 |
-| Mini bar    | Show floating countdown bar                                                            |
+| Displays    | Per-screen toggle for which displays get blocked                                       |
+| Mini bar    | Show floating countdown bar, snap to corner                                            |
 | Startup     | Launch at login                                                                        |
 
 Personal media (your custom image/audio) lives **outside** the repo — Settings stores the absolute path, so the file can sit anywhere on disk.
@@ -129,6 +140,8 @@ hey-watch-out/
 │   ├── icon.svg          # source app icon (Navi-style orb)
 │   ├── icon.icns/.ico    # generated platform icons
 │   └── tray.png / @2x    # tray icon
+├── scripts/
+│   └── generate-icons.js # renders platform icons from SVG (sharp)
 └── package.json
 ```
 
