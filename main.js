@@ -42,10 +42,14 @@ const store = new Store({
 
 function applyAutoStart() {
   const enabled = !!store.get('autostart');
+  // In dev, process.execPath is electron.exe; registering it bare makes Windows
+  // launch the default "Welcome to Electron" window at login. Point the login
+  // item at the script so a dev run still opens the app, not bare Electron.
   app.setLoginItemSettings({
     openAtLogin: enabled,
     openAsHidden: true,
-    args: [],
+    path: process.execPath,
+    args: app.isPackaged ? [] : [path.resolve(process.argv[1])],
   });
 }
 
