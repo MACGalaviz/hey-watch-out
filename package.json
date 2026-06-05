@@ -1,6 +1,6 @@
 {
   "name": "hey-watch-out",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Cross-platform break reminder. Personal alternative to Time Out.",
   "main": "main.js",
   "author": "Miguel Cabanas",
