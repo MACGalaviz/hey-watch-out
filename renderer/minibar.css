@@ -90,6 +90,7 @@ body {
   border: none;
   width: 18px;
   height: 18px;
+  margin-left: -5px;
   padding: 0;
   border-radius: 50%;
   cursor: pointer;
@@ -114,7 +115,26 @@ body {
   display: block;
 }
 
+.icon-btn .ic-stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+#pause .ic-play {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
 
 #pause .ic-play { display: none; }
 #pause.is-paused .ic-pause { display: none; }
 #pause.is-paused .ic-play { display: block; }
+
+/* Reset button only appears while paused (next to the resume button). */
+#reset { display: none; }
+.bar.is-paused #reset { display: flex; }

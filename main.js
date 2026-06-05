@@ -88,6 +88,8 @@ let miniBar = null;
 let tray = null;
 let breakTimer = null;
 let nextBreakAt = null;
+let intervalStartAt = null;
+let pausedRemainingMs = null;
 let isBreakActive = false;
 
 function scheduleNextBreak() {
@@ -97,12 +99,38 @@ function scheduleNextBreak() {
   }
   if (store.get('paused')) {
     nextBreakAt = null;
+    intervalStartAt = null;
     broadcast('tick', { nextBreakAt: null, paused: true });
     return;
   }
   const ms = Math.max(1, store.get('intervalMinutes')) * 60 * 1000;
-  nextBreakAt = Date.now() + ms;
+  intervalStartAt = Date.now();
+  nextBreakAt = intervalStartAt + ms;
   breakTimer = setTimeout(startBreak, ms);
+  broadcast('tick', { nextBreakAt, paused: false });
+}
+
+// Re-arm the timer after a settings change WITHOUT resetting elapsed time:
+// keep the same interval start, recompute the target from the new interval.
+function rescheduleKeepingElapsed() {
+  if (breakTimer) {
+    clearTimeout(breakTimer);
+    breakTimer = null;
+  }
+  if (store.get('paused')) {
+    nextBreakAt = null;
+    intervalStartAt = null;
+    broadcast('tick', { nextBreakAt: null, paused: true });
+    return;
+  }
+  if (intervalStartAt == null) {
+    scheduleNextBreak();
+    return;
+  }
+  const ms = Math.max(1, store.get('intervalMinutes')) * 60 * 1000;
+  nextBreakAt = intervalStartAt + ms;
+  const remaining = Math.max(0, nextBreakAt - Date.now());
+  breakTimer = setTimeout(startBreak, remaining);
   broadcast('tick', { nextBreakAt, paused: false });
 }
 
@@ -245,6 +273,11 @@ ipcMain.handle('toggle-pause', () => {
   return store.get('paused');
 });
 
+ipcMain.handle('reset-timer', () => {
+  resetTimer();
+  return store.get('paused');
+});
+
 ipcMain.handle('pick-file', async (_e, filters) => {
   const r = await dialog.showOpenDialog({
     properties: ['openFile'],
@@ -297,7 +330,7 @@ ipcMain.on('overlay-ready', (e) => {
 });
 
 function applySettingsChange() {
-  if (!isBreakActive) scheduleNextBreak();
+  if (!isBreakActive) rescheduleKeepingElapsed();
   const wantMini = store.get('miniBarEnabled');
   if (wantMini && !miniBar) createMiniBar();
   if (!wantMini && miniBar) {
@@ -440,13 +473,39 @@ function togglePause() {
   const paused = !store.get('paused');
   store.set('paused', paused);
   if (paused) {
+    // Freeze the countdown: remember how much time was left so resume continues.
     if (breakTimer) clearTimeout(breakTimer);
     breakTimer = null;
+    pausedRemainingMs = nextBreakAt ? Math.max(0, nextBreakAt - Date.now()) : null;
     nextBreakAt = null;
     broadcast('tick', { nextBreakAt: null, paused: true });
   } else {
-    scheduleNextBreak();
+    resumeFromPause();
   }
+  refreshTrayMenu();
+}
+
+// Resume after a pause without losing elapsed time: continue from the frozen
+// remaining time instead of restarting the full interval.
+function resumeFromPause() {
+  if (breakTimer) {
+    clearTimeout(breakTimer);
+    breakTimer = null;
+  }
+  const intervalMs = Math.max(1, store.get('intervalMinutes')) * 60 * 1000;
+  const remaining = pausedRemainingMs != null ? pausedRemainingMs : intervalMs;
+  pausedRemainingMs = null;
+  nextBreakAt = Date.now() + remaining;
+  intervalStartAt = nextBreakAt - intervalMs;
+  breakTimer = setTimeout(startBreak, remaining);
+  broadcast('tick', { nextBreakAt, paused: false });
+}
+
+// Restart the countdown from a full interval and resume running.
+function resetTimer() {
+  pausedRemainingMs = null;
+  if (store.get('paused')) store.set('paused', false);
+  scheduleNextBreak();
   refreshTrayMenu();
 }
 

@@ -1,7 +1,9 @@
+const bar = document.getElementById('bar');
 const label = document.getElementById('label');
 const fill = document.getElementById('fill');
 const openBtn = document.getElementById('open');
 const pauseBtn = document.getElementById('pause');
+const resetBtn = document.getElementById('reset');
 
 let intervalMinutes = 20;
 let nextBreakAt = null;
@@ -15,6 +17,7 @@ function fmt(ms) {
 }
 
 function render() {
+  bar.classList.toggle('is-paused', paused);
   pauseBtn.classList.toggle('is-paused', paused);
   pauseBtn.title = paused ? 'Resume' : 'Pause';
   pauseBtn.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
@@ -50,7 +53,11 @@ async function refresh() {
 openBtn.addEventListener('click', () => window.api.openSettings());
 pauseBtn.addEventListener('click', async () => {
   paused = await window.api.togglePause();
-  render();
+  await refresh();
+});
+resetBtn.addEventListener('click', async () => {
+  paused = await window.api.resetTimer();
+  await refresh();
 });
 
 window.api.onTick((payload) => {

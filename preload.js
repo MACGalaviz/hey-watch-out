@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('api', {
   skipBreak: () => ipcRenderer.invoke('skip-break'),
   triggerBreakNow: () => ipcRenderer.invoke('trigger-break-now'),
   togglePause: () => ipcRenderer.invoke('toggle-pause'),
+  resetTimer: () => ipcRenderer.invoke('reset-timer'),
   pickFile: (filters) => ipcRenderer.invoke('pick-file', filters),
   revealFile: (p) => ipcRenderer.invoke('reveal-file', p),
   getState: () => ipcRenderer.invoke('get-state'),
