@@ -50,7 +50,7 @@ So I built it.
   - Hidden
 - **Progress bar** left-to-right showing time elapsed in current break
 - **Skip button** with optional grace-period delay, plus `Esc` shortcut
-- **Floating mini-bar** with countdown to next break — drag from anywhere, snap to any corner, pause/resume and gear buttons
+- **Floating mini-bar** with countdown to next break — drag from anywhere, snap to any corner, pause (freezes elapsed time), resume, restart and gear buttons
 - **System tray**: take break now, pause/resume, settings, quit
 - **Launch at login** toggle (macOS Launch Services / Windows registry)
 - Settings persisted via `electron-store`
